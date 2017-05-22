@@ -7,6 +7,7 @@
 //
 
 #import "ViewController.h"
+#import "GithubRepo.h"
 
 @interface ViewController () <UITableViewDelegate, UITableViewDataSource>
 
@@ -48,10 +49,21 @@
             return;
         }
         
+        NSMutableArray<GithubRepo *> *repoObjects = [[NSMutableArray alloc]init];
+        
         for(NSDictionary *repo in repos) { //JSON data back from our request
             NSString *repoName = repo[@"name"];
             NSLog(@"repo: %@", repoName);
+            
+            GithubRepo *aRepo = [[GithubRepo alloc] initWithName:repo[@"name"] andURL:[NSURL URLWithString: repo[@"html_url"]]];
+            [repoObjects addObject:aRepo];
         }
+        self.objects = [repoObjects copy];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.gitTableView reloadData];
+        });//sets github table
+        
     }]; //creates task that gets data from server, tasks makes the request
     
     [dataTask resume]; //resumes task (since its created in suspended state)
@@ -69,6 +81,13 @@
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
     return self.objects.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell" forIndexPath:indexPath];
+    GithubRepo *object = self.objects[indexPath.row];
+    cell.textLabel.text = [NSString stringWithFormat:@"%@ %@", object.name, object.url];
+    return cell;
 }
 
 @end

@@ -11,7 +11,7 @@
 @interface ViewController : UIViewController
 
 
--(NSURL *)returnURL:(NSString *)string;
+//-(NSURL *)returnURL:(NSString *)string;
 
 @end
 
